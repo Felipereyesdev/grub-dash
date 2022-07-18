@@ -68,11 +68,37 @@ const create = (req,res,next) =>{
     res.status(201).json({ data: newDish });
 }
 
+// validates dishId for updating dishes 
+const validateDishId = (req,res,next)=>{
+    const {dishId} = req.params;
+    const { data: { id } = {} } = req.body
+    if(dishId === id || !id){
+       return next();
+    }
+    next({status: 400,message:`Dish id does not match route id. Dish: ${id}, Route: ${dishId}`})
+
+}
+
+// updating a specific dish
+
+const update = (req,res,next) =>{
+const dish = res.locals.dish;
+const { data: { name, description, price,image_url } = {} } = req.body
+//updating the specific dish 
+dish.name= name;
+dish.description= description;
+dish.price = price;
+dish.image_url = image_url;
+
+res.json({data:dish});
+
+}
 
 
 
 module.exports={
     list,
     read:[dishExists,read],
-    create:[hasProperties("name"),hasProperties("description"),hasProperties("price"),hasProperties("image_url"),priceCheck,create]
+    create:[hasProperties("name"),hasProperties("description"),hasProperties("price"),hasProperties("image_url"),priceCheck,create],
+    update:[dishExists ,validateDishId ,hasProperties("name"),hasProperties("description"),hasProperties("price"),hasProperties("image_url"),priceCheck,update]
 }
